@@ -551,5 +551,10 @@ msgstr "{emoji} 绿色"
 msgid "{emoji} Yellow"
 msgstr "{emoji} 黄色"
 
+
 #~ msgid "Drawing {number} cards"
 #~ msgstr "抽取 {number} 张牌"
+
+
+msgid "There is already a game in this chat. Use /join and /start to join and start the game"
+msgstr "这个群组已经有启动中的游戏了。使用 /join 和 /start 加入并开始游戏"

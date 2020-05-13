@@ -24,6 +24,7 @@ from user_setting import UserSetting
 from utils import send_async
 from shared_vars import dispatcher
 from internationalization import _, user_locale
+import subprocess
 
 @user_locale
 def help_handler(bot, update):
@@ -106,6 +107,21 @@ def news(bot, update):
                text=_("All news here: https://telegram.me/unobotupdates"),
                disable_web_page_preview=True)
 
+@user_locale
+def uptime(bot, update):
+    p = subprocess.Popen('bash -c "uptime -p; cat /proc/loadavg; uname -sr"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    lines = ""
+    for line in p.stdout.readlines():
+        lines = lines + line.decode('utf-8')
+    retval = p.wait()
+    send_async(bot, update.message.chat_id,
+               text=_(lines),
+               disable_web_page_preview=True)
+
+@user_locale
+def getuid(bot, update):
+    send_async(bot, update.message.chat_id,
+               text=_(update.message.from_user.id), disable_web_page_preview=True)
 
 @user_locale
 def stats(bot, update):
@@ -119,6 +135,8 @@ def stats(bot, update):
         stats_text = list()
 
         n = us.games_played
+        stats_text.append(
+            update.message.from_user.first_name)
         stats_text.append(
             _("{number} game played",
               "{number} games played",
@@ -145,6 +163,8 @@ def stats(bot, update):
 
 def register():
     dispatcher.add_handler(CommandHandler('help', help_handler))
+    dispatcher.add_handler(CommandHandler('getuid', getuid))
+    dispatcher.add_handler(CommandHandler("uptime", uptime))
     dispatcher.add_handler(CommandHandler('source', source))
     dispatcher.add_handler(CommandHandler('news', news))
     dispatcher.add_handler(CommandHandler('stats', stats))

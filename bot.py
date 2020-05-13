@@ -75,24 +75,28 @@ def new_game(bot, update):
         help_handler(bot, update)
 
     else:
+        try:
+            game = gm.chatid_games[chat_id][-1]
+        except (KeyError, IndexError): ## cases there is not a game
+            if update.message.chat_id in gm.remind_dict:
+                for user in gm.remind_dict[update.message.chat_id]:
+                    send_async(bot,
+                               user,
+                               text=_("A new game has been started in {title}").format(
+                                    title=update.message.chat.title))
 
-        if update.message.chat_id in gm.remind_dict:
-            for user in gm.remind_dict[update.message.chat_id]:
-                send_async(bot,
-                           user,
-                           text=_("A new game has been started in {title}").format(
-                                title=update.message.chat.title))
+                del gm.remind_dict[update.message.chat_id]
 
-            del gm.remind_dict[update.message.chat_id]
-
-        game = gm.new_game(update.message.chat)
-        game.starter = update.message.from_user
-        game.owner.append(update.message.from_user.id)
-        game.mode = DEFAULT_GAMEMODE
-        send_async(bot, chat_id,
-                   text=_("Created a new game! Join the game with /join "
-                          "and start the game with /start"))
-
+            game = gm.new_game(update.message.chat)
+            game.starter = update.message.from_user
+            game.owner.append(update.message.from_user.id)
+            game.mode = DEFAULT_GAMEMODE
+            send_async(bot, chat_id,
+                       text=_("Created a new game! Join the game with /join "
+                              "and start the game with /start"))
+            return
+        send_async(bot, chat_id, text=_("There is already a game in this chat. "
+                                        "Use /join and /start to join and start the game"))
 
 @user_locale
 def kill_game(bot, update):
